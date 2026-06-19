@@ -1,0 +1,123 @@
+/**
+ * Notice Banner Block — Styles
+ * Figma reference: Bankinter Luxembourg — desktop 1:424 / mobile 1:208
+ * Model: xwalk (EDS + Universal Editor)
+ *
+ * Mobile-first, scoped a .notice-banner. Variantes:
+ *   .notice-banner-item-info   → fondo teal
+ *   .notice-banner-item-action → fondo amarillo
+ */
+
+/* 1. Contenedor: stack vertical de banners */
+.notice-banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding-bottom: var(--space-xl);
+}
+
+/* 2. Item base (mobile: heading sobre contenido) */
+.notice-banner .notice-banner-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+}
+
+/* 3. Variantes de fondo */
+.notice-banner .notice-banner-item-info {
+  background-color: var(--color-accent-teal);
+}
+
+.notice-banner .notice-banner-item-action {
+  background-color: var(--color-accent-yellow);
+}
+
+/* 4. Heading */
+.notice-banner .notice-banner-heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-heading);
+  line-height: var(--lh-heading);
+  color: var(--color-text);
+}
+
+/* 5. Cuerpo (variante info) */
+.notice-banner .notice-banner-body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-text);
+}
+
+.notice-banner .notice-banner-body > * {
+  margin: 0 0 var(--space-sm);
+}
+
+.notice-banner .notice-banner-body > *:last-child {
+  margin-bottom: 0;
+}
+
+/* 6. Acción (variante action) */
+.notice-banner .notice-banner-action {
+  display: flex;
+}
+
+/* 7. Botón CONTÁCTANOS (doble clase + scope para especificidad sin !important) */
+.notice-banner .notice-banner-cta.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 48px;
+  margin: 0;
+  padding: 0 var(--space-lg);
+  border: 1px solid rgb(25 27 28 / 12%);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-button);
+  line-height: var(--lh-button);
+  letter-spacing: var(--ls-button);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.notice-banner .notice-banner-cta.button:hover,
+.notice-banner .notice-banner-cta.button:focus-visible {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.notice-banner .notice-banner-cta.button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* 8. Desktop (≥900px) */
+@media (width >= 900px) {
+  /* info → heading izq / cuerpo der (~421px traducido a minmax flexible) */
+  .notice-banner .notice-banner-item-info {
+    display: grid;
+    grid-template-columns: minmax(0, 421px) 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  /* action → heading izq / botón der */
+  .notice-banner .notice-banner-item-action {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* 9. Movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .notice-banner .notice-banner-cta.button {
+    transition: none;
+  }
+}

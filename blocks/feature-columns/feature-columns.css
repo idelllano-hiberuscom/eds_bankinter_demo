@@ -1,0 +1,227 @@
+/**
+ * Feature Columns Block — Styles
+ *
+ * Bloque de dos paneles (media ↔ contenido) con alternado resuelto 100% por CSS.
+ * Figma reference: Bankinter Luxembourg — secciones features / por-qué / referencia
+ * Model: xwalk (EDS + Universal Editor)
+ *
+ * Mobile-first. Todos los selectores escopados a .feature-columns.
+ * El alternado imagen↔texto NO se hace en JS: se controla con `order` (mobile)
+ * y `order` sobre grid (desktop) según la clase de layout del bloque.
+ */
+
+/* 1. Contenedor raíz — variables locales + layout mobile (paneles apilados) */
+.feature-columns {
+  --feature-columns-gap: var(--space-md);
+  --feature-columns-icon-bg: var(--color-accent-teal);
+  --feature-columns-radius-image: 16px; /* 16px confirmado por el equipo (no existe token global --radius-image) */
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--feature-columns-gap);
+}
+
+/* 3. Paneles */
+.feature-columns .feature-columns-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* En mobile la imagen va SIEMPRE arriba, sea cual sea el layout. */
+.feature-columns .feature-columns-panel-media {
+  order: -1;
+}
+
+/* 4. Media */
+.feature-columns .feature-columns-media picture {
+  display: block;
+}
+
+.feature-columns .feature-columns-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--feature-columns-radius-image);
+}
+
+/* 5. Contenido */
+.feature-columns .feature-columns-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Caja de icono (acento). Color por panel via campo iconColor: teal (default) o yellow. */
+.feature-columns .feature-columns-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 64px;
+  height: 64px;
+  padding: var(--space-sm);
+  border-radius: var(--feature-columns-radius-image);
+  background-color: var(--feature-columns-icon-bg);
+}
+
+.feature-columns .feature-columns-icon img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Modificador de color amarillo (activado por iconColor="yellow" en el panel). */
+.feature-columns .feature-columns-panel-icon-yellow .feature-columns-icon {
+  background-color: var(--color-accent-yellow);
+}
+
+.feature-columns .feature-columns-eyebrow {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  line-height: var(--lh-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-button);
+}
+
+.feature-columns .feature-columns-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: var(--fs-heading);
+  line-height: var(--lh-heading);
+}
+
+.feature-columns .feature-columns-body {
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+}
+
+.feature-columns .feature-columns-body p {
+  margin: 0;
+}
+
+.feature-columns .feature-columns-body p + p {
+  margin-top: var(--space-sm);
+}
+
+/* Lista de features con check de acento. */
+.feature-columns .feature-columns-list {
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-columns .feature-columns-list li {
+  position: relative;
+  padding-left: var(--space-md);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+.feature-columns .feature-columns-list li + li {
+  margin-top: var(--space-xs);
+}
+
+/* Check decorativo dibujado por CSS (sin nodo en el DOM → no necesita aria). */
+.feature-columns .feature-columns-list li::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 0;
+  width: 6px;
+  height: 11px;
+  border-right: 2px solid var(--color-cta);
+  border-bottom: 2px solid var(--color-cta);
+  transform: rotate(45deg);
+}
+
+/* 6. CTA (botón pill naranja) — replica el patrón del hero.
+   Doble clase + scope .feature-columns para ganar especificidad al a.button del core sin !important. */
+.feature-columns .feature-columns-cta.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  box-sizing: border-box;
+  min-width: 185px;
+  height: 48px;
+  margin-top: var(--space-xs);
+  padding: 0 var(--space-md);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-cta);
+  color: var(--color-bg);
+  font-family: var(--font-body);
+  font-size: var(--fs-button);
+  line-height: var(--lh-button);
+  letter-spacing: var(--ls-button);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.feature-columns .feature-columns-cta.button:hover,
+.feature-columns .feature-columns-cta.button:focus-visible {
+  background-color: var(--color-cta-border);
+  color: var(--color-bg);
+  text-decoration: none;
+}
+
+.feature-columns .feature-columns-cta.button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* 7. Desktop — dos paneles en paralelo */
+@media (width >= 900px) {
+  .feature-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  /* En desktop el order mobile deja de aplicar; cada layout coloca sus paneles. */
+  .feature-columns .feature-columns-panel-media,
+  .feature-columns .feature-columns-panel-content {
+    order: 0;
+  }
+
+  /* media-content: imagen a la izquierda, contenido a la derecha. */
+  .feature-columns-media-content .feature-columns-panel-media {
+    order: 0;
+  }
+
+  .feature-columns-media-content .feature-columns-panel-content {
+    order: 1;
+  }
+
+  /* content-media: contenido a la izquierda, imagen a la derecha. */
+  .feature-columns-content-media .feature-columns-panel-content {
+    order: 0;
+  }
+
+  .feature-columns-content-media .feature-columns-panel-media {
+    order: 1;
+  }
+
+  /* equal: dos paneles de texto equivalentes, orden natural del DOM. */
+
+  .feature-columns .feature-columns-title {
+    font-size: var(--fs-display);
+    line-height: var(--lh-display);
+  }
+}
+
+/* 8. Accesibilidad de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .feature-columns .feature-columns-cta.button {
+    transition: none;
+  }
+}

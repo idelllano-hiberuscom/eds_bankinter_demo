@@ -15,7 +15,9 @@
       "hero",
       "cards",
       "columns",
-      "fragment"
+      "fragment",
+      "feature-columns",
+      "notice-banner"
     ]
   },
   {
@@ -37,6 +39,24 @@
       "image",
       "button",
       "title"
+    ]
+  },
+  {
+    "id": "feature-columns",
+    "components": [
+      "feature-columns-panel"
+    ]
+  },
+  {
+    "id": "hero",
+    "components": [
+      "hero-slide"
+    ]
+  },
+  {
+    "id": "notice-banner",
+    "components": [
+      "notice-banner-item"
     ]
   }
 ]

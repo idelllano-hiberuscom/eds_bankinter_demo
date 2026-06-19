@@ -180,6 +180,116 @@
     ]
   },
   {
+    "id": "feature-columns",
+    "fields": [
+      {
+        "component": "select",
+        "name": "layout",
+        "value": "media-content",
+        "label": "Orientación",
+        "valueType": "string",
+        "options": [
+          {
+            "name": "Media · Contenido",
+            "value": "media-content"
+          },
+          {
+            "name": "Contenido · Media",
+            "value": "content-media"
+          },
+          {
+            "name": "Dos paneles de texto",
+            "value": "equal"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "feature-columns-panel",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "icon",
+        "label": "Icono",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "name": "iconAlt",
+        "value": "",
+        "label": "Alt del icono",
+        "valueType": "string"
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Imagen",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "name": "imageAlt",
+        "value": "",
+        "label": "Alt de la imagen",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "eyebrow",
+        "value": "",
+        "label": "Eyebrow",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "title",
+        "value": "",
+        "label": "Título",
+        "valueType": "string"
+      },
+      {
+        "component": "richtext",
+        "name": "text",
+        "value": "",
+        "label": "Texto",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "ctaText",
+        "value": "",
+        "label": "Texto del CTA",
+        "valueType": "string"
+      },
+      {
+        "component": "aem-content",
+        "name": "ctaLink",
+        "label": "Enlace del CTA",
+        "valueType": "string"
+      },
+      {
+        "component": "select",
+        "name": "iconColor",
+        "value": "teal",
+        "label": "Color del icono",
+        "valueType": "string",
+        "options": [
+          {
+            "name": "Teal",
+            "value": "teal"
+          },
+          {
+            "name": "Amarillo",
+            "value": "yellow"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "fragment",
     "fields": [
       {
@@ -191,6 +301,30 @@
   },
   {
     "id": "hero",
+    "fields": [
+      {
+        "component": "boolean",
+        "name": "autoplay",
+        "label": "Autoplay",
+        "valueType": "boolean"
+      },
+      {
+        "component": "text",
+        "valueType": "number",
+        "name": "interval",
+        "label": "Interval (ms)",
+        "value": ""
+      },
+      {
+        "component": "boolean",
+        "name": "loop",
+        "label": "Loop",
+        "valueType": "boolean"
+      }
+    ]
+  },
+  {
+    "id": "hero-slide",
     "fields": [
       {
         "component": "reference",
@@ -207,10 +341,86 @@
         "value": ""
       },
       {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow",
+        "value": ""
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "title",
+        "label": "Title",
+        "value": ""
+      },
+      {
         "component": "richtext",
         "name": "text",
         "value": "",
         "label": "Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "ctaText",
+        "label": "CTA Text",
+        "value": ""
+      },
+      {
+        "component": "aem-content",
+        "name": "ctaLink",
+        "label": "CTA Link",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
+    "id": "notice-banner-item",
+    "fields": [
+      {
+        "component": "select",
+        "name": "variant",
+        "value": "info",
+        "label": "Variante",
+        "valueType": "string",
+        "options": [
+          {
+            "name": "Información",
+            "value": "info"
+          },
+          {
+            "name": "Acción",
+            "value": "action"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "name": "heading",
+        "value": "",
+        "label": "Título",
+        "valueType": "string"
+      },
+      {
+        "component": "richtext",
+        "name": "body",
+        "value": "",
+        "label": "Cuerpo",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "ctaText",
+        "value": "",
+        "label": "Texto del CTA",
+        "valueType": "string"
+      },
+      {
+        "component": "aem-content",
+        "name": "ctaLink",
+        "label": "Enlace del CTA",
         "valueType": "string"
       }
     ]
