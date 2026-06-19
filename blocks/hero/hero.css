@@ -246,23 +246,19 @@
     padding: 0;
   }
 
-  /* La imagen se contiene (no ocupa todo el espacio restante) y se redondea. */
+  /* La imagen se contiene (no ocupa todo el espacio restante). Sin border-radius por diseño. */
   .hero .hero-media {
     flex: 0 1 560px;
     max-width: 560px;
   }
 
-  .hero .hero-media img,
-  .hero .hero-image {
-    border-radius: 16px;
-  }
-
-  /* Caja amarilla de flechas anclada abajo-izquierda de la imagen.
-     ⚠️ Posición aproximada (borde izq. de la imagen); afinar con Figma. */
+  /* Caja amarilla de flechas: solapada con la esquina inferior-izquierda de la imagen.
+     left: 50% + space-lg ≈ borde izquierdo de la imagen en cualquier viewport ≥900px.
+     bottom: space-xl + space-sm ≈ 16px por encima del borde inferior de la imagen. */
   .hero .hero-controls {
     top: auto;
-    left: 50%;
-    bottom: var(--space-xl);
+    left: calc(50% + var(--space-lg));
+    bottom: calc(var(--space-xl) + var(--space-sm));
   }
 
   .hero .hero-dots {

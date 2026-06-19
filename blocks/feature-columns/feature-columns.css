@@ -14,7 +14,6 @@
 .feature-columns {
   --feature-columns-gap: var(--space-md);
   --feature-columns-icon-bg: var(--color-accent-teal);
-  --feature-columns-radius-image: 16px; /* 16px confirmado por el equipo (no existe token global --radius-image) */
 
   display: flex;
   flex-direction: column;
@@ -33,16 +32,48 @@
   order: -1;
 }
 
-/* 4. Media */
+/* 4. Media — rectángulo de acento (teal o yellow) visible 24px a la derecha y abajo de
+   la imagen, creado con ::after del wrapper .feature-columns-media.
+   Solo aplica en paneles de tipo media (.feature-columns-panel-media). */
+.feature-columns .feature-columns-media {
+  position: relative;
+  isolation: isolate;       /* contexto de apilamiento propio para z-index internos */
+  padding-bottom: var(--space-md); /* espacio donde asoma el acento */
+  padding-right: var(--space-md);
+}
+
 .feature-columns .feature-columns-media picture {
   display: block;
+  position: relative;
+  z-index: 1; /* por encima del ::after */
 }
 
 .feature-columns .feature-columns-media img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: var(--feature-columns-radius-image);
+}
+
+/* Rectángulo de acento: mismo tamaño que la imagen, desplazado 24px a dcha/abajo. */
+.feature-columns .feature-columns-panel-media .feature-columns-media::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: calc(100% - var(--space-md));
+  height: calc(100% - var(--space-md));
+  background-color: var(--color-accent-teal); /* teal por defecto */
+  z-index: 0;
+}
+
+/* layout content-media → acento amarillo automático (imagen al lado derecho). */
+.feature-columns-content-media .feature-columns-panel-media .feature-columns-media::after {
+  background-color: var(--color-accent-yellow);
+}
+
+/* Override explícito vía campo iconColor="yellow". */
+.feature-columns .feature-columns-panel-icon-yellow .feature-columns-media::after {
+  background-color: var(--color-accent-yellow);
 }
 
 /* 5. Contenido */
@@ -61,7 +92,8 @@
   margin: 0;
 }
 
-/* Caja de icono (acento). Color por panel via campo iconColor: teal (default) o yellow. */
+/* Caja de icono (acento). Color por panel via campo iconColor: teal (default) o yellow.
+   Sin border-radius: caja cuadrada por diseño. */
 .feature-columns .feature-columns-icon {
   display: inline-flex;
   align-items: center;
@@ -70,7 +102,6 @@
   width: 64px;
   height: 64px;
   padding: var(--space-sm);
-  border-radius: var(--feature-columns-radius-image);
   background-color: var(--feature-columns-icon-bg);
 }
 
@@ -172,44 +203,24 @@
   outline-offset: 2px;
 }
 
-/* 7. Desktop — dos paneles en paralelo */
+/* 7. Equal layout — siempre 2 columnas (iconos en paralelo en todas las anchuras).
+   media-content y content-media permanecen como columna única (imagen sobre texto). */
+.feature-columns-equal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  align-items: start;
+}
+
+/* Desktop (≥900px): tipografía display en títulos + gap mayor en equal. */
 @media (width >= 900px) {
-  .feature-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-xl);
-    align-items: center;
-  }
-
-  /* En desktop el order mobile deja de aplicar; cada layout coloca sus paneles. */
-  .feature-columns .feature-columns-panel-media,
-  .feature-columns .feature-columns-panel-content {
-    order: 0;
-  }
-
-  /* media-content: imagen a la izquierda, contenido a la derecha. */
-  .feature-columns-media-content .feature-columns-panel-media {
-    order: 0;
-  }
-
-  .feature-columns-media-content .feature-columns-panel-content {
-    order: 1;
-  }
-
-  /* content-media: contenido a la izquierda, imagen a la derecha. */
-  .feature-columns-content-media .feature-columns-panel-content {
-    order: 0;
-  }
-
-  .feature-columns-content-media .feature-columns-panel-media {
-    order: 1;
-  }
-
-  /* equal: dos paneles de texto equivalentes, orden natural del DOM. */
-
   .feature-columns .feature-columns-title {
     font-size: var(--fs-display);
     line-height: var(--lh-display);
+  }
+
+  .feature-columns-equal {
+    gap: var(--space-xl);
   }
 }
 

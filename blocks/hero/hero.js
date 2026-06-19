@@ -50,9 +50,14 @@ export default function decorate(block) {
   const configRow = rows.find(
     (row) => row.children.length >= 3 && !row.querySelector('picture'),
   ) || null;
-  const slideRows = rows.filter((row) => row !== configRow);
+  // Excluir filas sin contenido real (sin <picture> NI texto): evita slides en blanco
+  // que aparecen cuando quedan ítems hero-slide vacíos en el CMS (p. ej. intentos
+  // anteriores de añadir slides con el modelo antiguo roto).
+  const slideRows = rows
+    .filter((row) => row !== configRow)
+    .filter((row) => row.querySelector('picture') || row.textContent.trim());
 
-  // Sin slides: no hay nada que decorar, dejar el DOM intacto.
+  // Sin slides con contenido: no hay nada que decorar, dejar el DOM intacto.
   if (slideRows.length === 0) return;
 
   // 2. CONFIG DE BLOQUE (defaults aplicados si faltan celdas).
