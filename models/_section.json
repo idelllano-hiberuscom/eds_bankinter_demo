@@ -50,7 +50,9 @@
         "hero",
         "cards",
         "columns",
-        "fragment"
+        "fragment",
+        "feature-columns",
+        "notice-banner"
       ]
     }
   ]

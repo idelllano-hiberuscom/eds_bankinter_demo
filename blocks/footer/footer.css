@@ -1,20 +1,138 @@
+/**
+ * Footer Block — Styles
+ * Figma reference: desktop 1:449 · mobile 1:232
+ * Model: xwalk (EDS + Universal Editor)
+ * Mobile-first; scoped al footer.
+ */
+
+/* 1. Contenedor raíz del footer (área principal blanca + borde superior) */
 footer {
-  background-color: var(--light-color);
-  font-size: var(--body-font-size-xs);
+  background-color: var(--color-footer-bg);
+  border-top: 1px solid var(--color-footer-bar-bg);
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 24px;
+  color: var(--color-text);
 }
 
+/* 2. Contenedor centrado (todo menos la franja de copyright, que es full-bleed) */
 footer .footer > div {
-  margin: auto;
-  max-width: 1200px;
-  padding: 40px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 41px var(--space-xs) var(--space-md);
 }
 
 footer .footer p {
   margin: 0;
 }
 
+/* 3. Brand / logo */
+footer .footer-brand img {
+  display: block;
+  width: 173px;
+  height: 52px;
+}
+
+/* 4. Listas de enlaces (idiomas + corporativos): reset de lista */
+footer .footer-langs ul,
+footer .footer-links ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 5. Enlaces (idiomas + corporativos) */
+footer .footer-langs a,
+footer .footer-links a {
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 24px;
+  text-decoration: none;
+}
+
+/* 6. Selector de idioma: fila horizontal de 3 enlaces */
+footer .footer-langs ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+/* 7. Enlaces corporativos: mobile → rejilla 2 columnas × 3 filas */
+footer .footer-links ul {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.875rem var(--space-md);
+}
+
+/* 8. Estados interactivos (hover NO definido en Figma → mejora de usabilidad) */
+
+/* ⚠️ TODO: hover no existe en el diseño Figma; se añade subrayado sutil como assumption. */
+footer .footer-langs a:hover,
+footer .footer-links a:hover {
+  text-decoration: underline;
+}
+
+footer .footer-langs a:focus-visible,
+footer .footer-links a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* 9. Franja de copyright — full-bleed (hijo directo de .footer, fuera del centrado) */
+footer .footer-copyright {
+  margin: 0;
+  width: 100%;
+  background-color: var(--color-footer-bar-bg);
+  color: var(--color-footer-copyright);
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 10px;
+  line-height: 15px;
+  padding: var(--space-md) var(--space-xs);
+}
+
+/* 10. Desktop (≥900px): dos columnas + copyright alineado al contenido centrado */
 @media (width >= 900px) {
   footer .footer > div {
-    padding: 40px 32px 24px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "brand links"
+      "langs links";
+    gap: 29px var(--space-xl);
+    padding-top: 41px;
+  }
+
+  footer .footer-brand {
+    grid-area: brand;
+  }
+
+  footer .footer-langs {
+    grid-area: langs;
+  }
+
+  /* enlaces corporativos: una sola fila horizontal a la derecha, alineados arriba */
+  footer .footer-links {
+    grid-area: links;
+    align-self: start;
+  }
+
+  footer .footer-links ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.66rem;
+  }
+
+  /* copyright: texto a la izquierda alineado con el contenido centrado (max-width 1320) */
+  footer .footer-copyright {
+    text-align: left;
+    font-size: 12px;
+    line-height: 64px;
+    padding: 0;
+    padding-inline: max(var(--space-xs), calc((100% - 1320px) / 2));
   }
 }
+

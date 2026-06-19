@@ -77,7 +77,7 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
   nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
   toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
-  button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
+  button.setAttribute('aria-label', expanded ? 'Abrir menú' : 'Cerrar menú');
   // enable nav dropdown keyboard accessibility
   if (navSections) {
     const navDrops = navSections.querySelectorAll('.nav-drop');
@@ -122,6 +122,7 @@ export default async function decorate(block) {
   block.textContent = '';
   const nav = document.createElement('nav');
   nav.id = 'nav';
+  nav.setAttribute('aria-label', 'Principal');
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
   const classes = ['brand', 'sections', 'tools'];
@@ -154,7 +155,7 @@ export default async function decorate(block) {
   // hamburger for mobile
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
-  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
+  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Abrir menú">
       <span class="nav-hamburger-icon"></span>
     </button>`;
   hamburger.addEventListener('click', () => toggleMenu(nav, navSections));

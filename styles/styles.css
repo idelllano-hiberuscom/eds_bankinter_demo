@@ -38,6 +38,57 @@
 
   /* nav height */
   --nav-height: 64px;
+
+  /* ===== Bankinter Luxembourg — design tokens (Fase 2, aditivo) ===== */
+
+  /* colors */
+  --color-text: #191b1c;
+  --color-bg: #fff;
+  --color-header-bg: #fff;
+  --color-topbar-bg: #ebeef5;
+  --color-cta: #ff821c;
+  --color-cta-border: #f76900;
+  --color-accent-yellow: #fed430;
+  --color-accent-teal: #b5f0ef;
+  --color-focus: #005fcc;
+
+  /* footer */
+  --color-footer-bg: #fff;
+  --color-footer-bar-bg: #ebeef5;
+  --color-footer-copyright: #5f6a83;
+
+  /* fonts — ⚠️ TODO: BK-Text/BK-Sans NO presentes en /fonts/; usando solo fallback stacks.
+     Cuando se añadan los .woff2, declarar @font-face en styles/fonts.css. */
+  --font-display: georgia, 'Times New Roman', serif; /* títulos/headings */
+  --font-body: arial, helvetica, sans-serif;         /* eyebrow, body, labels */
+
+  /* type scale (mobile base) */
+  --fs-eyebrow: 16px;
+  --lh-eyebrow: 19.2px;
+  --fs-display: 30px; /* ⚠️ TODO: mobile no confirmado en Figma (rango 28–32px); desktop 40px */
+  --lh-display: 1.2;
+  --fs-heading: 24px;
+  --lh-heading: 36px;
+  --fs-body-lg: 20px;
+  --lh-body-lg: 32px;
+  --fs-body: 16px;
+  --lh-body: 24px;
+  --fs-nav: 14px;
+  --lh-nav: 24px;
+  --fs-button: 12px;
+  --lh-button: 48px;
+  --ls-button: 1.5px;
+
+  /* spacing */
+  --space-3xs: 2px;
+  --space-xs: 12px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 32px;
+  --space-xl: 80px;
+
+  /* radii */
+  --radius-pill: 32px;
 }
 
 /* fallback fonts */
@@ -67,6 +118,10 @@
     --heading-font-size-m: 22px;
     --heading-font-size-s: 20px;
     --heading-font-size-xs: 18px;
+
+    /* Bankinter — display confirmado en desktop */
+    --fs-display: 40px;
+    --lh-display: 48px;
   }
 }
 

@@ -1,37 +1,282 @@
+/**
+ * Hero Block — Styles
+ * Figma reference: Bankinter Luxembourg — desktop 1:283 / mobile 1:58
+ * Model: xwalk (EDS + Universal Editor)
+ * Carrusel real multi-imagen. Mobile-first, scoped a .hero.
+ */
+
+/* Sección a ancho completo (anula el padding del wrapper de sección). */
 .hero-container .hero-wrapper {
   max-width: unset;
   padding: 0;
 }
 
+/* ===== Contenedor del carrusel ===== */
 .hero {
   position: relative;
-  padding: 40px 24px;
-  min-height: 300px;
 }
 
-.hero h1 {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--background-color);
+.hero .hero-carousel {
+  position: relative;
+  overflow: hidden;
 }
 
-.hero picture {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
+.hero .hero-track {
+  display: flex;
+  transition: transform 0.4s ease;
+}
+
+/* ===== Slide ===== */
+.hero .hero-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ⚠️ Slides ocultos siguen en la pista (translateX); aria-hidden los oculta a AT. */
+.hero .hero-slide[aria-hidden='true'] {
+  visibility: hidden;
+}
+
+.hero .hero-slide[aria-hidden='false'] {
+  visibility: visible;
+}
+
+/* ===== Media ===== */
+.hero .hero-media {
+  width: 100%;
+}
+
+.hero .hero-media img,
+.hero .hero-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
+}
+
+/* ===== Contenido ===== */
+.hero .hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-sm);
   box-sizing: border-box;
 }
 
-.hero img {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
+.hero .hero-eyebrow {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  line-height: var(--lh-eyebrow);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text);
 }
 
+.hero .hero-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  color: var(--color-text);
+}
+
+.hero .hero-body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+}
+
+.hero .hero-body p {
+  margin: 0;
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+}
+
+.hero .hero-body p + p {
+  margin-top: var(--space-sm);
+}
+
+/* ===== CTA (botón pill naranja + icono flecha) =====
+   Doble clase + scope .hero para ganar especificidad al a.button del core sin !important. */
+.hero .hero-cta.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  align-self: flex-start;
+  box-sizing: border-box;
+  min-width: 185px;
+  height: 48px;
+  margin-top: var(--space-xs);
+  padding: 0 var(--space-md);
+  border: 1px solid var(--color-cta-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-cta);
+  color: var(--color-bg);
+  font-family: var(--font-body);
+  font-size: var(--fs-button);
+  line-height: var(--lh-button);
+  letter-spacing: var(--ls-button);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.hero .hero-cta.button:hover,
+.hero .hero-cta.button:focus-visible {
+  background-color: var(--color-cta-border);
+  color: var(--color-bg);
+  text-decoration: none;
+}
+
+.hero .hero-cta.button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Flecha del CTA dibujada por CSS (chevron derecha). */
+.hero .hero-cta-icon {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid currentcolor;
+  border-right: 2px solid currentcolor;
+  transform: rotate(45deg);
+}
+
+/* ===== Controles prev/next (cuadrados amarillos) ===== */
+.hero .hero-controls {
+  display: flex;
+}
+
+.hero .hero-controls:empty {
+  display: none;
+}
+
+.hero .hero-prev,
+.hero .hero-next {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  padding: 0;
+  border: 0;
+  background-color: var(--color-accent-yellow);
+  cursor: pointer;
+}
+
+.hero .hero-prev::before,
+.hero .hero-next::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--color-text);
+  border-right: 2px solid var(--color-text);
+}
+
+.hero .hero-prev::before {
+  transform: translate(-30%, -50%) rotate(-135deg);
+}
+
+.hero .hero-next::before {
+  transform: translate(-70%, -50%) rotate(45deg);
+}
+
+.hero .hero-prev:focus-visible,
+.hero .hero-next:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ===== Dots / indicadores ===== */
+.hero .hero-dots {
+  display: flex;
+  gap: var(--space-xs);
+  justify-content: center;
+  padding: var(--space-sm) 0;
+}
+
+.hero .hero-dots:empty {
+  display: none;
+}
+
+.hero .hero-dot {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--color-accent-teal);
+  cursor: pointer;
+}
+
+.hero .hero-dot.is-active,
+.hero .hero-dot[aria-selected='true'] {
+  background-color: var(--color-cta);
+}
+
+.hero .hero-dot:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ===== Tablet (≥600px) ===== */
+@media (width >= 600px) {
+  .hero .hero-content {
+    padding: var(--space-lg) var(--space-md);
+  }
+}
+
+/* ===== Desktop (≥900px): contenido izq. + media der. ===== */
 @media (width >= 900px) {
-  .hero {
-    padding: 40px 32px;
+  .hero .hero-slide {
+    flex-direction: row-reverse;
+    align-items: center;
+  }
+
+  .hero .hero-content {
+    flex: 0 0 560px;
+    max-width: 560px;
+    gap: var(--space-md);
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  .hero .hero-media {
+    flex: 1 1 auto;
+  }
+
+  /* ⚠️ TODO: posición exacta de controles/dots en el frame de diseño no confirmada.
+     Se anclan abajo-izquierda del carrusel; revisar con Figma Analyst. */
+  .hero .hero-controls {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  .hero .hero-dots {
+    position: absolute;
+    right: var(--space-md);
+    bottom: var(--space-md);
+    z-index: 2;
+  }
+}
+
+/* ===== Accesibilidad: movimiento reducido ===== */
+@media (prefers-reduced-motion: reduce) {
+  .hero .hero-track {
+    transition: none;
+  }
+
+  .hero .hero-cta.button {
+    transition: none;
   }
 }
