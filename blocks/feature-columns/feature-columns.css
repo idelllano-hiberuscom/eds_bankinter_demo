@@ -203,24 +203,44 @@
   outline-offset: 2px;
 }
 
-/* 7. Equal layout — siempre 2 columnas (iconos en paralelo en todas las anchuras).
-   media-content y content-media permanecen como columna única (imagen sobre texto). */
-.feature-columns-equal {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-md);
-  align-items: start;
-}
-
-/* Desktop (≥900px): tipografía display en títulos + gap mayor en equal. */
+/* 7. Desktop — dos paneles en paralelo */
 @media (width >= 900px) {
+  .feature-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  /* En desktop el order mobile deja de aplicar; cada layout coloca sus paneles. */
+  .feature-columns .feature-columns-panel-media,
+  .feature-columns .feature-columns-panel-content {
+    order: 0;
+  }
+
+  /* media-content: imagen a la izquierda, contenido a la derecha. */
+  .feature-columns-media-content .feature-columns-panel-media {
+    order: 0;
+  }
+
+  .feature-columns-media-content .feature-columns-panel-content {
+    order: 1;
+  }
+
+  /* content-media: contenido a la izquierda, imagen a la derecha. */
+  .feature-columns-content-media .feature-columns-panel-content {
+    order: 0;
+  }
+
+  .feature-columns-content-media .feature-columns-panel-media {
+    order: 1;
+  }
+
+  /* equal: dos paneles de texto equivalentes, orden natural del DOM. */
+
   .feature-columns .feature-columns-title {
     font-size: var(--fs-display);
     line-height: var(--lh-display);
-  }
-
-  .feature-columns-equal {
-    gap: var(--space-xl);
   }
 }
 
