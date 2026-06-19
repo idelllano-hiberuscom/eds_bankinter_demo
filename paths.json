@@ -1,0 +1,8 @@
+{
+  "mappings": [
+    "/content/eds-bankinter/:/"
+  ],
+  "includes": [
+    "/content/eds-bankinter/"
+  ]
+}
