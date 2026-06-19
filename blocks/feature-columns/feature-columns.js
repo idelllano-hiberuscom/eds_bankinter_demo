@@ -15,46 +15,40 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
  *     por AEM (no se inventan props ni resources). iconAlt/imageAlt/ctaText se editan en el panel.
  *   - Contenedor: data-aue-filter="feature-columns" restaurado para el botón "+ Añadir panel".
  *
- * DOM de ENTRADA (matriz EDS que recibe decorate):
+ * DOM de ENTRADA (matriz EDS que recibe decorate) — 4 celdas por panel (límite
+ * xwalk max-cells = 4). El contenido textual viaja AGRUPADO en una sola celda
+ * (element grouping "content") con field-collapse para título y CTA:
  *   block.feature-columns
  *     ├── div (FILA DE CONFIG — OPCIONAL)
  *     │     └── div → <p> layout ("media-content" | "content-media" | "equal")
  *     ├── div (FILA PANEL A)
- *     │     ├── div (col 0) → <picture>   icon   (vacío si no aplica)
- *     │     ├── div (col 1) → <p>         iconAlt
- *     │     ├── div (col 2) → <picture>   image  (vacío si no aplica)
- *     │     ├── div (col 3) → <p>         imageAlt
- *     │     ├── div (col 4) → <p>         eyebrow
- *     │     ├── div (col 5) → <h2>        title
- *     │     ├── div (col 6) → richtext    body (<p> y/o <ul><li>)
- *     │     ├── div (col 7) → <p>         ctaText
- *     │     ├── div (col 8) → <p><a href> ctaLink
- *     │     └── div (col 9) → <p>         iconColor ("teal" | "yellow"; vacío = teal)
- *     └── div (FILA PANEL B) … misma estructura de 10 celdas
+ *     │     ├── div (celda 0) → <picture>  icon  (+iconAlt; vacío si no aplica)
+ *     │     ├── div (celda 1) → <picture>  image (+imageAlt; vacío si no aplica)
+ *     │     ├── div (celda 2) → grupo "content": <p>eyebrow, <hN>título,
+ *     │     │                    <p>/<ul> cuerpo, <p><a> CTA (cualquiera opcional)
+ *     │     └── div (celda 3) → <p> iconColor ("teal" | "yellow"; vacío = teal)
+ *     └── div (FILA PANEL B) … misma estructura de 4 celdas
  *
- * Distinción CONFIG vs PANEL (CRÍTICO — los paneles pueden ser SOLO texto, así que
- * NO se puede detectar por <picture>): la fila de CONFIG es la que tiene UNA sola
- * celda cuyo texto coincide con /^(media-content|content-media|equal)$/i. TODAS las
- * demás filas son paneles y se leen POR POSICIÓN (0..9). Celdas vacías = campo ausente
- * → se tratan con gracia (no se generan wrappers vacíos visibles).
+ * Distinción CONFIG vs PANEL: la fila de CONFIG tiene UNA sola celda cuyo texto
+ * coincide con /^(media-content|content-media|equal)$/i. Las demás son paneles.
  *
- * iconColor (col 9) es un campo SIN elemento visible propio (como iconAlt/imageAlt/ctaText):
- * se consume para decidir el color de la caja de icono (teal por defecto, yellow opcional)
- * y se elimina con la fila. Se edita desde el property sheet del panel (lo cubre la
- * instrumentación de item moveInstrumentation row → panel); no necesita data-aue-prop visible.
+ * La celda "content" ya llega como HTML semántico apilado (gracias a element grouping
+ * + field collapse del modelo), así que NO se lee por posición de campo: se localizan
+ * los nodos por tipo (heading = título; <p> previo al heading = eyebrow; <a> = CTA;
+ * <ul> = lista) y se decoran in situ reutilizando la propia celda (preserva instrumentación).
  *
- * ⚠️ TODO: La heurística de config (regex sobre el texto de una celda única) es robusta
- * para los valores actuales, pero si en el futuro un panel tuviese una única celda con
- * exactamente ese texto podría confundirse. Revisar si el modelo cambia.
+ * iconColor (celda 3) es un campo SIN elemento visible: se consume para el color de la
+ * caja de icono y se elimina con la fila; sigue editable en el property sheet del panel
+ * gracias a la instrumentación de item (moveInstrumentation row → panel).
  *
- * El alternado imagen↔texto se resuelve POR CSS (order/grid) según la clase de layout;
- * el JS NO reordena el DOM.
+ * El alternado imagen↔texto se resuelve POR CSS (order/grid) según la clase de layout.
  *
  * @param {Element} block - Root element of the block
  */
 export default function decorate(block) {
   const LAYOUTS = ['media-content', 'content-media', 'equal'];
   const LAYOUT_RE = /^(media-content|content-media|equal)$/i;
+  const COLORS = ['teal', 'yellow'];
 
   const rows = [...block.children];
 
@@ -79,34 +73,32 @@ export default function decorate(block) {
   block.classList.add(`feature-columns-${layout}`);
   if (configRow) configRow.remove();
 
-  // 3. CONSTRUCCIÓN DE PANELES — se MUEVEN los nodos autorados, no se reconstruyen.
+  // 3. CONSTRUCCIÓN DE PANELES — 4 celdas por panel (límite xwalk max-cells):
+  //    [0] icon (+iconAlt)  [1] image (+imageAlt)  [2] grupo "content"  [3] iconColor.
+  //    El grupo "content" llega como UNA celda con HTML semántico ya apilado
+  //    (eyebrow <p>, título <hN>, cuerpo <p>/<ul>, CTA <p><a>); se decora in situ.
   panelRows.forEach((row) => {
     const cells = [...row.children];
+    const iconCell = cells[0] || null;
+    const imageCell = cells[1] || null;
+    const contentCell = cells[2] || null;
+    const colorCell = cells[3] || null;
 
-    const cellAt = (i) => cells[i] || null;
-    const pictureAt = (i) => (cellAt(i) ? cellAt(i).querySelector('picture') : null);
-    const textAt = (i) => (cellAt(i) ? cellAt(i).textContent.trim() : '');
-
-    const iconPicture = pictureAt(0);
-    const iconAlt = textAt(1);
-    const imagePicture = pictureAt(2);
-    const imageAlt = textAt(3);
-    const eyebrowText = textAt(4);
-    const titleSrc = cellAt(5) ? cellAt(5).querySelector('h1, h2, h3, h4, h5, h6, p') : null;
-    const bodyCell = cellAt(6);
-    const hasBody = bodyCell && bodyCell.textContent.trim() !== '';
-    const ctaTextEl = cellAt(7) ? cellAt(7).querySelector('p') : null;
-    const ctaLinkEl = cellAt(8) ? cellAt(8).querySelector('a') : null;
-    // Color del icono por panel: "yellow" activa el modificador; "teal"/vacío = default CSS.
-    const iconColor = textAt(9).toLowerCase();
+    // Color del icono (celda 3, sin elemento visible): "yellow" activa el modificador.
+    const rawColor = colorCell ? colorCell.textContent.trim().toLowerCase() : '';
+    const iconColor = COLORS.includes(rawColor) ? rawColor : 'teal';
 
     const panel = document.createElement('div');
     panel.className = 'feature-columns-panel';
     if (iconColor === 'yellow') panel.classList.add('feature-columns-panel-icon-yellow');
     // UE: transferir el resource del item (fila original) al panel nuevo ANTES de eliminar la fila.
+    // iconColor (celda 3) queda editable en el property sheet del panel vía esta instrumentación.
     moveInstrumentation(row, panel);
 
-    // --- MEDIA (panel con imagen) ---
+    const iconPicture = iconCell ? iconCell.querySelector('picture') : null;
+    const imagePicture = imageCell ? imageCell.querySelector('picture') : null;
+
+    // --- MEDIA (imagen grande a un lado) ---
     if (imagePicture) {
       panel.classList.add('feature-columns-panel-media');
       const media = document.createElement('div');
@@ -116,96 +108,71 @@ export default function decorate(block) {
         // El LCP es el hero → todas las imágenes de panel son lazy.
         img.setAttribute('loading', 'lazy');
         img.setAttribute('decoding', 'async');
-        if (imageAlt && !img.getAttribute('alt')) img.setAttribute('alt', imageAlt);
       }
       media.append(imagePicture); // mueve el <picture> existente
       // UE: transferir el campo image (data-aue-* de la celda) al <picture> superviviente.
-      if (cellAt(2)) moveInstrumentation(cellAt(2), imagePicture);
+      if (imageCell) moveInstrumentation(imageCell, imagePicture);
       panel.append(media);
     } else {
       panel.classList.add('feature-columns-panel-content');
     }
 
-    // --- CONTENIDO (icono, eyebrow, título, body, CTA) ---
-    const hasContent = iconPicture || eyebrowText || (titleSrc && titleSrc.textContent.trim())
-      || hasBody || (ctaLinkEl && ctaLinkEl.getAttribute('href'));
+    // --- CONTENIDO: se reutiliza la celda del grupo (preserva la instrumentación de
+    //     cada campo) y se decoran los nodos ya existentes. ---
+    const content = contentCell || document.createElement('div');
+    content.classList.add('feature-columns-content');
 
-    if (hasContent) {
-      const content = document.createElement('div');
-      content.className = 'feature-columns-content';
-
-      // Caja de icono (fondo de acento). El color lo decide el campo iconColor del panel
-      // (col 9): teal por defecto, yellow vía la clase feature-columns-panel-icon-yellow
-      // aplicada al panel más arriba.
-      if (iconPicture) {
-        const iconBox = document.createElement('div');
-        iconBox.className = 'feature-columns-icon';
-        const iconImg = iconPicture.querySelector('img');
-        if (iconImg) {
-          iconImg.setAttribute('loading', 'lazy');
-          iconImg.setAttribute('decoding', 'async');
-          // Icono decorativo: alt desde iconAlt o vacío.
-          iconImg.setAttribute('alt', iconAlt || '');
-        }
-        iconBox.append(iconPicture); // mueve el <picture> existente
-        // UE: transferir el campo icon (data-aue-* de la celda) al <picture> superviviente.
-        if (cellAt(0)) moveInstrumentation(cellAt(0), iconPicture);
-        content.append(iconBox);
+    // Caja de icono (fondo de acento) antepuesta al texto. Color teal/yellow por panel.
+    if (iconPicture) {
+      const iconBox = document.createElement('div');
+      iconBox.className = 'feature-columns-icon';
+      const iconImg = iconPicture.querySelector('img');
+      if (iconImg) {
+        iconImg.setAttribute('loading', 'lazy');
+        iconImg.setAttribute('decoding', 'async');
       }
+      iconBox.append(iconPicture); // mueve el <picture> existente
+      // UE: transferir el campo icon (data-aue-* de la celda) al <picture> superviviente.
+      if (iconCell) moveInstrumentation(iconCell, iconPicture);
+      content.prepend(iconBox);
+    }
 
-      // Eyebrow
-      if (eyebrowText) {
-        const eyebrowEl = cellAt(4).querySelector('p') || document.createElement('p');
-        eyebrowEl.classList.add('feature-columns-eyebrow');
-        if (!eyebrowEl.textContent.trim()) eyebrowEl.textContent = eyebrowText;
-        // UE: transferir el campo eyebrow al <p> (incluido el caso de <p> creado nuevo).
-        if (cellAt(4)) moveInstrumentation(cellAt(4), eyebrowEl);
-        content.append(eyebrowEl); // mueve el <p> existente (o uno nuevo si no existía)
+    // Título = heading del grupo (<hN>). Eyebrow = el/los <p> previos al heading.
+    const titleEl = content.querySelector('h1, h2, h3, h4, h5, h6');
+    if (titleEl) {
+      titleEl.classList.add('feature-columns-title');
+      let prev = titleEl.previousElementSibling;
+      while (prev) {
+        if (prev.matches('p')) prev.classList.add('feature-columns-eyebrow');
+        prev = prev.previousElementSibling;
       }
+    }
 
-      // Título → siempre <h2> (subsección bajo el <h1> del hero).
-      if (titleSrc && titleSrc.textContent.trim()) {
-        let titleEl;
-        if (titleSrc.tagName.toLowerCase() === 'h2') {
-          titleEl = titleSrc;
-        } else {
-          // Reetiquetar moviendo los hijos (sin replaceWith sobre el nodo original).
-          titleEl = document.createElement('h2');
-          while (titleSrc.firstChild) titleEl.append(titleSrc.firstChild);
-        }
-        titleEl.classList.add('feature-columns-title');
-        // UE: transferir el campo title al <h2> superviviente.
-        if (cellAt(5)) moveInstrumentation(cellAt(5), titleEl);
-        content.append(titleEl);
-      }
+    // Listas del cuerpo → viñetas con check de acento.
+    content.querySelectorAll('ul').forEach((ul) => ul.classList.add('feature-columns-list'));
 
-      // Body richtext (<p> y/o <ul>) — se mueven los nodos existentes.
-      if (hasBody) {
-        const body = document.createElement('div');
-        body.className = 'feature-columns-body';
-        while (bodyCell.firstChild) body.append(bodyCell.firstChild);
-        body.querySelectorAll('ul').forEach((ul) => ul.classList.add('feature-columns-list'));
-        // UE: transferir el campo text (richtext) al contenedor body.
-        moveInstrumentation(bodyCell, body);
-        content.append(body);
-      }
+    // CTA → botón naranja. El grupo lo entrega como <p><a>; se localiza el último <p>
+    // que envuelve únicamente un <a> y se desenvuelve para alinearlo como hijo del flex.
+    const ctaWrap = [...content.querySelectorAll(':scope > p')].reverse().find(
+      (p) => p.children.length === 1
+        && p.firstElementChild.tagName === 'A'
+        && p.textContent.trim() === p.firstElementChild.textContent.trim(),
+    );
+    if (ctaWrap) {
+      const ctaLink = ctaWrap.firstElementChild;
+      ctaLink.classList.add('feature-columns-cta', 'button');
+      content.insertBefore(ctaLink, ctaWrap);
+      ctaWrap.remove();
+    }
 
-      // CTA → <a class="feature-columns-cta button"> (texto = ctaText o el del enlace).
-      if (ctaLinkEl && ctaLinkEl.getAttribute('href')) {
-        const ctaText = (ctaTextEl && ctaTextEl.textContent.trim())
-          || ctaLinkEl.textContent.trim();
-        if (ctaText) ctaLinkEl.textContent = ctaText;
-        ctaLinkEl.classList.add('feature-columns-cta', 'button');
-        // UE: transferir el campo ctaLink al <a> superviviente.
-        if (cellAt(8)) moveInstrumentation(cellAt(8), ctaLinkEl);
-        content.append(ctaLinkEl); // mueve el <a> existente
-      }
-
+    // Solo se añade el contenido si tiene algo que mostrar (evita wrappers vacíos
+    // en paneles solo-imagen).
+    if (content.children.length > 0) {
       panel.append(content);
     }
 
     block.append(panel); // inserta el panel decorado
-    row.remove(); // elimina la fila original ya vaciada
+    row.remove(); // elimina la fila original ya vaciada (celdas icon/image/color)
   });
 
   // UE (xwalk): restaurar el filtro tras mover el DOM para que reaparezca el botón

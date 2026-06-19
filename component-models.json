@@ -238,36 +238,53 @@
       },
       {
         "component": "text",
-        "name": "eyebrow",
+        "name": "content_eyebrow",
         "value": "",
         "label": "Eyebrow",
         "valueType": "string"
       },
       {
         "component": "text",
-        "name": "title",
+        "name": "content_title",
         "value": "",
         "label": "Título",
         "valueType": "string"
       },
       {
+        "component": "select",
+        "name": "content_titleType",
+        "value": "h2",
+        "label": "Nivel de título",
+        "valueType": "string",
+        "options": [
+          {
+            "name": "Título 2 (H2)",
+            "value": "h2"
+          },
+          {
+            "name": "Título 3 (H3)",
+            "value": "h3"
+          }
+        ]
+      },
+      {
         "component": "richtext",
-        "name": "text",
+        "name": "content_text",
         "value": "",
         "label": "Texto",
         "valueType": "string"
       },
       {
-        "component": "text",
-        "name": "ctaText",
-        "value": "",
-        "label": "Texto del CTA",
+        "component": "aem-content",
+        "name": "content_cta",
+        "label": "Enlace del CTA",
         "valueType": "string"
       },
       {
-        "component": "aem-content",
-        "name": "ctaLink",
-        "label": "Enlace del CTA",
+        "component": "text",
+        "name": "content_ctaText",
+        "value": "",
+        "label": "Texto del CTA",
         "valueType": "string"
       },
       {
@@ -330,48 +347,65 @@
         "component": "reference",
         "valueType": "string",
         "name": "image",
-        "label": "Image",
+        "label": "Imagen",
         "multi": false
       },
       {
         "component": "text",
         "valueType": "string",
         "name": "imageAlt",
-        "label": "Alt",
+        "label": "Alt de la imagen",
         "value": ""
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "eyebrow",
+        "name": "content_eyebrow",
         "label": "Eyebrow",
         "value": ""
       },
       {
         "component": "text",
         "valueType": "string",
-        "name": "title",
-        "label": "Title",
+        "name": "content_title",
+        "label": "Título",
         "value": ""
       },
       {
+        "component": "select",
+        "name": "content_titleType",
+        "value": "h1",
+        "label": "Nivel de título",
+        "valueType": "string",
+        "options": [
+          {
+            "name": "Título 1 (H1)",
+            "value": "h1"
+          },
+          {
+            "name": "Título 2 (H2)",
+            "value": "h2"
+          }
+        ]
+      },
+      {
         "component": "richtext",
-        "name": "text",
+        "name": "content_text",
         "value": "",
-        "label": "Text",
+        "label": "Texto",
+        "valueType": "string"
+      },
+      {
+        "component": "aem-content",
+        "name": "content_cta",
+        "label": "Enlace del CTA",
         "valueType": "string"
       },
       {
         "component": "text",
-        "valueType": "string",
-        "name": "ctaText",
-        "label": "CTA Text",
-        "value": ""
-      },
-      {
-        "component": "aem-content",
-        "name": "ctaLink",
-        "label": "CTA Link",
+        "name": "content_ctaText",
+        "value": "",
+        "label": "Texto del CTA",
         "valueType": "string"
       }
     ]

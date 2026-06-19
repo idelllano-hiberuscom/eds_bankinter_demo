@@ -14,24 +14,28 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
  *     por AEM (no se inventan props ni resources). imageAlt/ctaText se editan en el panel.
  *   - Contenedor: data-aue-filter="hero" restaurado para el botón "+ Añadir slide".
  *
- * DOM de ENTRADA (matriz EDS que recibe decorate):
+ * DOM de ENTRADA (matriz EDS que recibe decorate) — 2 celdas por slide (límite
+ * xwalk max-cells = 4). El contenido textual viaja AGRUPADO en una sola celda
+ * (element grouping "content") con field-collapse para título y CTA:
  *   block.hero
- *     ├── div (FILA DE CONFIG — OPCIONAL; SIN <picture>)
+ *     ├── div (FILA DE CONFIG — OPCIONAL; SIN <picture>, 3 celdas)
  *     │     ├── div → <p> autoplay ("true"|"false")
  *     │     ├── div → <p> interval ("5000" ms)
  *     │     └── div → <p> loop ("true"|"false")
- *     ├── div (FILA SLIDE 1 — contiene <picture>)
- *     │     ├── div (col 0) → <picture>     imagen del slide (LCP en slide 1)
- *     │     ├── div (col 1) → <p>           imageAlt
- *     │     ├── div (col 2) → <p>           eyebrow
- *     │     ├── div (col 3) → <h1>|<p>      título
- *     │     ├── div (col 4) → richtext      body (<p>/<strong>)
- *     │     ├── div (col 5) → <p>           ctaText
- *     │     └── div (col 6) → <p><a href>   ctaLink
- *     └── div (FILA SLIDE N) … misma estructura de 7 celdas
+ *     ├── div (FILA SLIDE 1)
+ *     │     ├── div (celda 0) → <picture>  imagen (+imageAlt; LCP en slide 1)
+ *     │     └── div (celda 1) → grupo "content": <p>eyebrow, <hN>título,
+ *     │                          <p> body, <p><a> CTA (cualquiera opcional)
+ *     └── div (FILA SLIDE N) … misma estructura de 2 celdas
  *
- * Distinción config vs slide: una fila es SLIDE solo si contiene <picture>.
- * La fila de config (celdas de texto sueltas, sin <picture>) es opcional.
+ * Distinción config vs slide: la fila de CONFIG es la única SIN <picture> con 3
+ * celdas (autoplay/interval/loop). El resto son slides (incluido un slide nuevo
+ * aún sin imagen). La fila de config es opcional.
+ *
+ * La celda "content" ya llega como HTML semántico apilado (gracias a element grouping
+ * + field collapse del modelo), así que NO se lee por posición de campo: se localizan
+ * los nodos por tipo (heading = título; <p> previo = eyebrow; <a> = CTA) y se decoran
+ * in situ reutilizando la propia celda (preserva instrumentación de UE).
  *
  * Defaults del carrusel (no provienen de Figma): autoplay=false, interval=5000ms, loop=true.
  *
@@ -40,9 +44,13 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
 export default function decorate(block) {
   const rows = [...block.children];
 
-  // 1. CLASIFICACIÓN — una fila es SLIDE solo si contiene <picture>.
-  const slideRows = rows.filter((row) => row.querySelector('picture'));
-  const configRow = rows.find((row) => !row.querySelector('picture')) || null;
+  // 1. CLASIFICACIÓN — la fila de CONFIG es la única SIN <picture> con 3 celdas
+  //    (autoplay/interval/loop). El resto son slides (incluido un slide nuevo aún
+  //    sin imagen, que tendrá 2 celdas vacías).
+  const configRow = rows.find(
+    (row) => row.children.length >= 3 && !row.querySelector('picture'),
+  ) || null;
+  const slideRows = rows.filter((row) => row !== configRow);
 
   // Sin slides: no hay nada que decorar, dejar el DOM intacto.
   if (slideRows.length === 0) return;
@@ -78,9 +86,13 @@ export default function decorate(block) {
   track.setAttribute('aria-atomic', 'false');
   carousel.append(track);
 
-  // 4. CONSTRUCCIÓN DE SLIDES — se MUEVEN los nodos autorados, no se reconstruyen.
+  // 4. CONSTRUCCIÓN DE SLIDES — 2 celdas por slide: [0] imagen (+imageAlt) y
+  //    [1] grupo "content" (eyebrow/título/body/CTA ya apilados). Se DECORA in situ
+  //    reutilizando la celda del grupo (preserva la instrumentación de cada campo).
   slideRows.forEach((row, index) => {
     const cells = [...row.children];
+    const imageCell = cells[0] || null;
+    const contentCell = cells[1] || null;
     const isFirst = index === 0;
 
     const slide = document.createElement('div');
@@ -93,14 +105,10 @@ export default function decorate(block) {
     slide.setAttribute('aria-hidden', isFirst ? 'false' : 'true');
     if (isFirst) slide.classList.add('is-active');
 
+    // --- celda 0: imagen (<picture> ya entregado por EDS) ---
     const media = document.createElement('div');
     media.className = 'hero-media';
-
-    const content = document.createElement('div');
-    content.className = 'hero-content';
-
-    // --- col 0: imagen (<picture> ya entregado por EDS) ---
-    const picture = cells[0] ? cells[0].querySelector('picture') : null;
+    const picture = imageCell ? imageCell.querySelector('picture') : null;
     if (picture) {
       const img = picture.querySelector('img');
       if (img) {
@@ -113,72 +121,48 @@ export default function decorate(block) {
           img.setAttribute('loading', 'lazy');
           img.setAttribute('decoding', 'async');
         }
-        // --- col 1: imageAlt (solo si la imagen no trae alt) ---
-        const altText = cells[1] ? cells[1].textContent.trim() : '';
-        if (altText && !img.getAttribute('alt')) img.setAttribute('alt', altText);
-        // ⚠️ TODO: width/height no extraídos de Figma; EDS suele incluirlos en <img>.
       }
       media.append(picture);
       // UE: transferir el campo image (data-aue-* de la celda) al <picture> superviviente.
-      moveInstrumentation(cells[0], picture);
+      if (imageCell) moveInstrumentation(imageCell, picture);
     }
 
-    // --- col 2: eyebrow ---
-    const eyebrow = cells[2] ? cells[2].querySelector('p') : null;
-    if (eyebrow && eyebrow.textContent.trim()) {
-      eyebrow.classList.add('hero-eyebrow');
-      moveInstrumentation(cells[2], eyebrow);
-      content.append(eyebrow);
-    }
+    // --- celda 1: grupo "content" → se reutiliza la celda y se decora in situ. ---
+    const content = contentCell || document.createElement('div');
+    content.classList.add('hero-content');
 
-    // --- col 3: título (un único <h1> por página → slide 1; resto <p>) ---
-    const titleSrc = cells[3]
-      ? cells[3].querySelector('h1, h2, h3, h4, h5, h6, p')
-      : null;
-    if (titleSrc && titleSrc.textContent.trim()) {
-      const desiredTag = isFirst ? 'h1' : 'p';
-      let titleEl;
-      if (titleSrc.tagName.toLowerCase() === desiredTag) {
-        titleSrc.classList.add('hero-title');
-        titleEl = titleSrc;
-      } else {
-        // Reetiquetar moviendo los hijos (no se usa replaceWith sobre nodo original).
-        titleEl = document.createElement(desiredTag);
-        titleEl.className = 'hero-title';
-        while (titleSrc.firstChild) titleEl.append(titleSrc.firstChild);
+    // Título = heading del grupo (<hN>). Eyebrow = el/los <p> previos al heading.
+    const titleEl = content.querySelector('h1, h2, h3, h4, h5, h6');
+    if (titleEl) {
+      titleEl.classList.add('hero-title');
+      let prev = titleEl.previousElementSibling;
+      while (prev) {
+        if (prev.matches('p')) prev.classList.add('hero-eyebrow');
+        prev = prev.previousElementSibling;
       }
-      moveInstrumentation(cells[3], titleEl);
-      content.append(titleEl);
     }
 
-    // --- col 4: body richtext (uno o varios <p>) ---
-    const bodyCell = cells[4];
-    if (bodyCell && bodyCell.textContent.trim()) {
-      const body = document.createElement('div');
-      body.className = 'hero-body';
-      while (bodyCell.firstChild) body.append(bodyCell.firstChild);
-      moveInstrumentation(bodyCell, body);
-      content.append(body);
-    }
-
-    // --- col 5 + col 6: CTA (texto + enlace) ---
-    const ctaTextEl = cells[5] ? cells[5].querySelector('p') : null;
-    const ctaLinkEl = cells[6] ? cells[6].querySelector('a') : null;
-    const ctaText = (ctaTextEl && ctaTextEl.textContent.trim())
-      || (ctaLinkEl && ctaLinkEl.textContent.trim())
-      || '';
-    if (ctaLinkEl && (ctaText || ctaLinkEl.getAttribute('href'))) {
-      if (ctaText) ctaLinkEl.textContent = ctaText;
-      ctaLinkEl.classList.add('hero-cta', 'button');
-      if (cells[6]) moveInstrumentation(cells[6], ctaLinkEl);
+    // CTA → botón naranja con flecha. El grupo lo entrega como <p><a>; se localiza el
+    // último <p> que envuelve únicamente un <a> y se desenvuelve para alinearlo en el flex.
+    const ctaWrap = [...content.querySelectorAll(':scope > p')].reverse().find(
+      (p) => p.children.length === 1
+        && p.firstElementChild.tagName === 'A'
+        && p.textContent.trim() === p.firstElementChild.textContent.trim(),
+    );
+    if (ctaWrap) {
+      const ctaLink = ctaWrap.firstElementChild;
+      ctaLink.classList.add('hero-cta', 'button');
       const icon = document.createElement('span');
       icon.className = 'hero-cta-icon';
       icon.setAttribute('aria-hidden', 'true');
-      ctaLinkEl.append(icon);
-      content.append(ctaLinkEl);
+      ctaLink.append(icon);
+      content.insertBefore(ctaLink, ctaWrap);
+      ctaWrap.remove();
     }
 
-    slide.append(media, content);
+    slide.append(media);
+    // Solo se añade el contenido si tiene algo que mostrar (evita wrappers vacíos).
+    if (content.children.length > 0) slide.append(content);
     track.append(slide);
   });
 
@@ -282,10 +266,11 @@ export default function decorate(block) {
   rows.forEach((row) => row.remove());
   block.append(carousel);
 
-  // UE (xwalk): en autoría, asociar la pista de slides con el resource del bloque y
-  // restaurar el filtro para que reaparezca el botón "+ Añadir slide" tras mover el DOM.
+  // UE (xwalk): restaurar el filtro tras mover el DOM para que reaparezca el botón
+  // "+ Añadir slide". Los slides ya llevan su propio resource (moveInstrumentation
+  // item-level), así que NO se duplica el resource del bloque en la pista: hacerlo
+  // creaba un segundo nodo "Hero" y sacaba el slide fuera del árbol en el editor.
   if (block.dataset.aueResource) {
-    track.dataset.aueResource = block.dataset.aueResource;
     block.dataset.aueFilter = 'hero';
   }
 

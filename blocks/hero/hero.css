@@ -66,14 +66,21 @@
   box-sizing: border-box;
 }
 
-.hero .hero-eyebrow {
+/* Párrafos del grupo "content" = cuerpo de texto (eyebrow se sobreescribe abajo). */
+.hero .hero-content p {
   margin: 0;
   font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+  color: var(--color-text);
+}
+
+/* Eyebrow: gana especificidad (.hero-content .hero-eyebrow) al párrafo de cuerpo. */
+.hero .hero-content .hero-eyebrow {
   font-size: var(--fs-eyebrow);
   line-height: var(--lh-eyebrow);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-text);
 }
 
 .hero .hero-title {
@@ -83,22 +90,6 @@
   font-size: var(--fs-display);
   line-height: var(--lh-display);
   color: var(--color-text);
-}
-
-.hero .hero-body {
-  margin: 0;
-  font-family: var(--font-body);
-  color: var(--color-text);
-}
-
-.hero .hero-body p {
-  margin: 0;
-  font-size: var(--fs-body-lg);
-  line-height: var(--lh-body-lg);
-}
-
-.hero .hero-body p + p {
-  margin-top: var(--space-sm);
 }
 
 /* ===== CTA (botón pill naranja + icono flecha) =====
@@ -150,9 +141,13 @@
   transform: rotate(45deg);
 }
 
-/* ===== Controles prev/next (cuadrados amarillos) ===== */
+/* ===== Controles prev/next (caja amarilla con flechas, superpuesta a la imagen) ===== */
 .hero .hero-controls {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
   display: flex;
+  z-index: 3;
 }
 
 .hero .hero-controls:empty {
@@ -235,31 +230,39 @@
   }
 }
 
-/* ===== Desktop (≥900px): contenido izq. + media der. ===== */
+/* ===== Desktop (≥900px): contenido izq. + media der., cluster centrado ===== */
 @media (width >= 900px) {
   .hero .hero-slide {
     flex-direction: row-reverse;
     align-items: center;
-  }
-
-  .hero .hero-content {
-    flex: 0 0 560px;
-    max-width: 560px;
-    gap: var(--space-md);
+    justify-content: center;
+    gap: var(--space-xl);
     padding: var(--space-xl) var(--space-lg);
   }
 
-  .hero .hero-media {
-    flex: 1 1 auto;
+  .hero .hero-content {
+    flex: 0 1 520px;
+    gap: var(--space-md);
+    padding: 0;
   }
 
-  /* ⚠️ TODO: posición exacta de controles/dots en el frame de diseño no confirmada.
-     Se anclan abajo-izquierda del carrusel; revisar con Figma Analyst. */
+  /* La imagen se contiene (no ocupa todo el espacio restante) y se redondea. */
+  .hero .hero-media {
+    flex: 0 1 560px;
+    max-width: 560px;
+  }
+
+  .hero .hero-media img,
+  .hero .hero-image {
+    border-radius: 16px;
+  }
+
+  /* Caja amarilla de flechas anclada abajo-izquierda de la imagen.
+     ⚠️ Posición aproximada (borde izq. de la imagen); afinar con Figma. */
   .hero .hero-controls {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    z-index: 2;
+    top: auto;
+    left: 50%;
+    bottom: var(--space-xl);
   }
 
   .hero .hero-dots {

@@ -50,6 +50,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+}
+
+/* Párrafos de cuerpo: hijos directos del contenido (sin wrapper propio). */
+.feature-columns .feature-columns-content p {
+  margin: 0;
 }
 
 /* Caja de icono (acento). Color por panel via campo iconColor: teal (default) o yellow. */
@@ -94,24 +103,9 @@
   line-height: var(--lh-heading);
 }
 
-.feature-columns .feature-columns-body {
-  color: var(--color-text);
-  font-family: var(--font-body);
-  font-size: var(--fs-body-lg);
-  line-height: var(--lh-body-lg);
-}
-
-.feature-columns .feature-columns-body p {
-  margin: 0;
-}
-
-.feature-columns .feature-columns-body p + p {
-  margin-top: var(--space-sm);
-}
-
 /* Lista de features con check de acento. */
 .feature-columns .feature-columns-list {
-  margin: var(--space-sm) 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
