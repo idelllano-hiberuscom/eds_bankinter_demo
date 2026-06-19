@@ -1,8 +1,8 @@
 {
   "mappings": [
-    "/content/eds-bankinter/:/"
+    "/content/eds-bankinter-v2/:/"
   ],
   "includes": [
-    "/content/eds-bankinter/"
+    "/content/eds-bankinter-v2/"
   ]
 }
